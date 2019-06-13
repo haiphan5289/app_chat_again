@@ -18,6 +18,7 @@ class message_controller: UITableViewController {
     private let CellReuseIdentifier = "cell"
     override func viewDidLoad() {
         super.viewDidLoad()
+        //khơi tạo cell, truyền tham chiếu UItableviewcell
         tb_message_controller.register(cell_message_controller.self, forCellReuseIdentifier: CellReuseIdentifier)
         implement_code()
     }
@@ -116,9 +117,12 @@ class message_controller: UITableViewController {
                     let mess_user: Mess = Mess(fromid: from_id ?? "", mess: mess ?? "", timestamp: timestamp ?? 0, toid: toid ?? "", image_url: image_url ?? "", width_image: width_image ?? 0, height_image: height_image ?? 0)
                     self.array_message.append(mess_user)
                     //detect toid từ mess_user
+                    //Group các dữ liệu mess cugnf ID lại với nhau
                     let key_to_id = mess_user.get_partner_id()
                     self.message_dictionary[key_to_id] = mess_user
+                    //truyegn giái trị cho mảng array_ message
                     self.array_message = Array(self.message_dictionary.values) as! [Mess]
+                    //sắp xếp mess theo thứ tụw lớn nhât >>> nhỏ nhất
                     self.array_message.sort(by: { (mess1, mess2) -> Bool in
                         return mess1.timestamp!.intValue > mess2.timestamp!.intValue
                     })
@@ -198,6 +202,7 @@ class message_controller: UITableViewController {
         cell.detailTextLabel?.text = self.array_message[indexPath.row].mess
         //trở qua biến mess để xử lý dữ liệu
         // cho view nầy gọn code
+        //khai báo biến mess là Mess bên cell, để delegate cho nó gọn code
         cell.mess = partner_object
         return cell
         //        let table_user = ref.child("user").child(partner_object.toid!)
@@ -220,6 +225,7 @@ class message_controller: UITableViewController {
         //        dateformat.dateFormat = "MMM d, h:mm a"
         //        cell.time_label.text = dateformat.string(from: timestamp_date as Date)
     }
+    //get dữ liệu của partner id, để truyền qua màn hình chat_collect
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let screen = UIStoryboard.init(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "chat_collect") as! chat_collect
         let partner_id = self.array_message[indexPath.row].get_partner_id()

@@ -14,6 +14,9 @@ class cell_message_controller: UITableViewCell {
     //cho gọn code
     var mess: Mess? {
         didSet {
+            //phải khoei tạo trong đây
+            //để lấy dữ liệu user về mới gắn lên navigation
+            //gắn time
             get_data_user_from_firebase()
             let second = mess!.timestamp?.doubleValue
             let timestamp_date = NSDate(timeIntervalSince1970: second!)
@@ -50,6 +53,7 @@ class cell_message_controller: UITableViewCell {
         return img
     }()
     
+    //set up time cho cell
     let time_label: UILabel = {
         let text = UILabel()
         text.font = UIFont.boldSystemFont(ofSize: 13)

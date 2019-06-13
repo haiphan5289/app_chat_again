@@ -12,6 +12,7 @@ import Firebase
 class new_message: UITableViewController {
     
     @IBOutlet var tb_new_message: UITableView!
+    //khai báo text cho cell
     private let CellReuseIdentifier = "cell"
     var array_User: [User] = [User]()
     override func viewDidLoad() {
@@ -23,7 +24,7 @@ class new_message: UITableViewController {
         get_data_from_firebase()
     }
     
-    //Láy dữ liêu jtuwf firebase
+    //Láy dữ liêu từ firebase
     func get_data_from_firebase(){
         let table_user = ref.child("user")
         table_user.observe(.childAdded) { (snap) in
@@ -70,6 +71,7 @@ class new_message: UITableViewController {
         navigationController?.pushViewController(screen, animated: true)
     }
     
+    //thay đổi chiều cao của cell
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 56
     }
@@ -77,6 +79,8 @@ class new_message: UITableViewController {
     
 }
 class User_cell: UITableViewCell {
+    //thêm field image cho cell
+    //set up field image
     let image_new : UIImageView = {
         let image_avatar = UIImageView()
         image_avatar.image = UIImage(named: "loading")
@@ -96,6 +100,8 @@ class User_cell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         addSubview(image_new)
+        
+        //add constraint cho image
         image_new.translatesAutoresizingMaskIntoConstraints = false
         image_new.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
         //        image_avtar.topAnchor.constraint(equalTo: self.topAnchor, constant: 0).isActive = true

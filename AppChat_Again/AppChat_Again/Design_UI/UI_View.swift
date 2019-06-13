@@ -9,8 +9,10 @@
 import Foundation
 import UIKit
 
+//tạo biến lưu trưc cache cho hình
 var iamge_cache = NSCache<AnyObject, AnyObject>()
 
+//khơi tạo màu xanh
 extension UIColor {
     convenience init(red: CGFloat, green: CGFloat, blue: CGFloat){
         self.init(red: red/255, green: green/255, blue: blue/255, alpha: 1)
@@ -19,6 +21,7 @@ extension UIColor {
 //Hàm hiển thị loading cho hình
 extension UIImageView {
     func load_image(text: String, position_x: CGFloat, position_y: CGFloat){
+        //kiểm tra có lưu trữ cache thì lấy ra
         if let image_object = iamge_cache.object(forKey: text as NSObject){
             self.image = image_object as? UIImage
             return
@@ -35,7 +38,9 @@ extension UIImageView {
             let url = URL(string: str)
             let data = try? Data(contentsOf: url!)
             let image_data = UIImage(named: "loading")?.pngData()
+            //gắn image dât vào biến
             if let image_dowload = UIImage(data: data ?? image_data!){
+                //set object imge data vào cacha
                 iamge_cache.setObject(image_dowload, forKey: text as AnyObject)
                 activities.stopAnimating()
                 self.image = UIImage(data: data!)

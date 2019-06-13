@@ -16,6 +16,7 @@ private let reuseIdentifier = "Cell"
 class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     var user: User? {
         didSet{
+            //set up navigation
             navigationItem.title = user?.name
         }
     }
@@ -26,10 +27,12 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
     var image_chat: UIImageView = UIImageView()
     override func viewDidLoad() {
         super.viewDidLoad()
-        //cách top của view_chat = 60
+        // Mỗi cell sẽ cách top của view_chat = 60
         collect.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
         collect.scrollIndicatorInsets = UIEdgeInsets(top: 8, left: 0, bottom: 60, right: 0)
         collect.alwaysBounceVertical = true
+        
+        //khởi tạo biên Cell và gắn giái trik UICollectionCell
         self.collect!.register(cell_chat_message.self, forCellWithReuseIdentifier: reuseIdentifier)
         implement_code()
         
@@ -67,6 +70,8 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
                     let mess_data : Mess = Mess(fromid: from_id, mess: mess ?? "", timestamp: timestamp, toid: to_id, image_url: image_url ?? "", width_image: width_image ?? 0, height_image: height_image ?? 0)
                     self.array_mess.append(mess_data)
                     self.collect.reloadData()
+                    
+                    //App sẽ tự dộng scroll tới vị trí cuối cừng
                     let indexPath = NSIndexPath(item: self.array_mess.count - 1, section: 0)
                     self.collect.scrollToItem(at: indexPath as IndexPath, at: .bottom, animated: true)
                 })
@@ -136,6 +141,7 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
         let data = ["from_id": fromid ?? "", "to_id": toid ?? "", "mess": mess, "timestamp": timestamp] as [String : Any]
         //setvalue chỉ có thềm vào thôi nếu muốn sau khi thểm mà lấy được key thì dung updatechildvaue
         //        table_mess.setValue(data)
+        //setvalue thì chỉ có 1 dũ liệu, update child value thì có nhiều giái trị
         table_mess.updateChildValues(data) { (err, data) in
             if err != nil {
                 print(err?.localizedDescription ?? "hihi")
@@ -176,13 +182,19 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! cell_chat_message
+        //load text mess lên text view
         cell.text_label.text = self.array_mess[indexPath.row].mess
         //        let message = self.array_mess[indexPath.row]
         //        print(message.toid)
+        
+        //tạo biến mess = Mess để dễ gọi
         let message = self.array_mess[indexPath.row]
-        //Customize width của buddle with
-        //dùng cell để delegate tới  cell_chat_message
+        
+
+        //dùng cell để delegate tới  cell_chat_message, dùng đê chạy hàm handle_zoom_out
         cell.chat_collect_delegate = self
+        
+        
         //set up hiển thị cho from id & to id
         if message.fromid == Auth.auth().currentUser?.uid{
             cell.buble_view.backgroundColor = UIColor.init(red: 61, green: 91, blue: 151)
@@ -214,35 +226,48 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
         
         //setup hiển thị khi mess khác "" và image_url khác ""
         if  message.mess != ""{
+            //Customize width của buddle with mess
             cell.width_buble?.constant = estimate_frame_for_text(text: message.mess!).width + 32
             cell.text_label.isHidden = false
             cell.image_chat.isHidden = true
             //            cell.buble_view.isHidden = false
         }
         else if message.image_url != "" {
+             //Customize width của buddle with image
             cell.image_chat.load_image(text: message.image_url!, position_x: 40, position_y: 40)
-            cell.image_chat.isHidden = false
             cell.buble_view.backgroundColor = UIColor.clear
             cell.width_buble?.constant = 300
+                        cell.image_chat.isHidden = false
             cell.text_label.isHidden = true
         }
         return cell
     }
     //customiz width & height của cell
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        //khai báo height mặc đinh
         var height : CGFloat = 80
+        
+        //khai báo mess = Mess đê dễ gọi
         let message = self.array_mess[indexPath.row]
+        
+        //khai báo width & height của image
         let width_image = message.width_image!.floatValue
         let height_image = message.height_image!.floatValue
+        
+        //Customer height theo mess or image
         if message.mess != "" {
             height = estimate_frame_for_text(text: self.array_mess[indexPath.row].mess!).height + 10
-        }else if message.image_url != "", width_image != 0, height_image != 0 {
+        }
+        else if message.image_url != "", width_image != 0, height_image != 0 {
             height = CGFloat(height_image / width_image * 300)
         }
+        
+        //PHẢI CÓ NÀY THÌ WIDTH MỚI CÓ TÁC DỤNG
         let width = UIScreen.main.bounds.width
         return CGSize(width: width, height: height)
     }
-    //height của cell sẽ phụ thuộc vào chiều dài của text
+    
+    //height & width của cell sẽ phụ thuộc vào chiều dài của text
     private func estimate_frame_for_text(text: String) -> CGRect {
         let size = CGSize(width: self.view.frame.size.width - 200, height: 1000)
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
@@ -264,6 +289,7 @@ class chat_collect: UICollectionViewController, UICollectionViewDelegateFlowLayo
                     print(err?.localizedDescription ?? "hihi")
                     return
                 }
+                //khỏi tạo biến khi có url của image
                 let image_url = url?.absoluteString
                 let uid = Auth.auth().currentUser?.uid
                 let user_id = self.user?.id!

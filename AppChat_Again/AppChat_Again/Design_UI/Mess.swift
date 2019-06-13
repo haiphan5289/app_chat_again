@@ -35,6 +35,7 @@ class Mess {
         self.width_image = width_image
         self.height_image = height_image
     }
+    //Lấy id của partner
     func get_partner_id() -> String{
 //        let partner_id: String?
         if Auth.auth().currentUser?.uid == fromid {
